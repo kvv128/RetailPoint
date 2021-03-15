@@ -27,6 +27,14 @@ class SelectDialog(QtWidgets.QDialog, ui_selectDialog.Ui_selectDialog):
 
         self.update_table_column()
 
+        # filter proxy model
+        filter_proxy_model = QtGui.QSortFilterProxyModel()
+        filter_proxy_model.setSourceModel(self.tbl_data.model())
+        filter_proxy_model.setFilterKeyColumn(2)  # third column
+
+        # line edit for filtering
+        self.txt_filter.textChanged.connect(filter_proxy_model.setFilterRegExp)
+
         # self.edit_mode = False
 
         # if data_id is not None:

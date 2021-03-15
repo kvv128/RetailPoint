@@ -2,6 +2,7 @@ from enum import Enum
 
 from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QTableWidgetItem, QMenu, QMessageBox, QDialog
+from peewee import JOIN
 
 import ui_dictForm
 from ui_Class_postDialog import PostDialog
@@ -114,7 +115,10 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
         self.update_table_context_menu()
 
         action = self.context_menu.exec_(self.tbl_data.mapToGlobal(position))
+
         # Обработка событий ContextMenu
+        dialog_result = None
+
         if action == self.add_action:
             if self.current_dict == DictionaryName.Post:
                 post_dialog = PostDialog(self)
@@ -127,12 +131,17 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
                 user_dialog = UserDialog(self)
                 dialog_result = user_dialog.exec_()
                 if dialog_result == QDialog.Accepted:
-                    pass
+                    self.update_table_data()
         #-------------------------------------------
         if action == self.edit_action:
             if self.current_dict == DictionaryName.Post:
                 post_dialog = PostDialog(self, self.current_record_id)
                 dialog_result = post_dialog.exec_()
+
+            if self.current_dict == DictionaryName.User:
+                user_dialog = UserDialog(self, self.current_record_id)
+                dialog_result = user_dialog.exec_()
+
 
             if dialog_result == QDialog.Accepted:
                 self.update_current_row()
@@ -148,6 +157,9 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
 
                 if self.current_dict == DictionaryName.Post:
                     DB_App.Post.delete_by_id(self.current_record_id)
+
+                if self.current_dict == DictionaryName.User:
+                    DB_App.User.delete_by_id(self.current_record_id)
 
                 self.tbl_data.removeRow(self.tbl_data.currentRow())
 
@@ -195,7 +207,7 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
                 row_num += 1
 
         if self.current_dict == DictionaryName.User:
-            MA = DB_App.User.alias()
+            MA = DB_App.Post.alias()
             query = (DB_App.User.select(DB_App.User.user_id,
                                         DB_App.User.user_login,
                                         DB_App.User.user_name,
@@ -207,7 +219,7 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
             for db_data in query:
                 self.tbl_data.setRowCount(row_num+1)
                 self.tbl_data.setItem(row_num, 0, QTableWidgetItem(str(db_data.user_id)))
-                # self.tbl_data.setItem(row_num, 1, QTableWidgetItem(str(db_data.user_name)))
+                self.tbl_data.setItem(row_num, 1, QTableWidgetItem(str(db_data.post.post_name)))
                 self.tbl_data.setItem(row_num, 2, QTableWidgetItem(str(db_data.user_login)))
                 self.tbl_data.setItem(row_num, 3, QTableWidgetItem(str(db_data.user_name)))
                 row_num += 1
@@ -216,6 +228,18 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
         if self.current_dict == DictionaryName.Post:
             db_data = DB_App.Post.get(DB_App.Post.post_id == self.current_record_id)
             self.tbl_data.setItem(self.current_row_index, 1, QTableWidgetItem(db_data.post_name))
+
+        if self.current_dict == DictionaryName.User:
+            PA = DB_App.Post.alias()
+            query = (DB_App.User.select(DB_App.User.user_name,
+                                        DB_App.User.user_login,
+                                        DB_App.User.id_user_post,
+                                        PA.post_name).where(DB_App.User.user_id == self.current_record_id)
+                     .join(PA, JOIN.LEFT_OUTER, on=(DB_App.User.id_user_post == PA.post_id)))
+            for row in query:
+                self.tbl_data.setItem(self.current_row_index, 1, QTableWidgetItem(row.post.post_name))
+                self.tbl_data.setItem(self.current_row_index, 2, QTableWidgetItem(row.user_login))
+                self.tbl_data.setItem(self.current_row_index, 3, QTableWidgetItem(row.user_name))
 
     def btn_toMainForm_clicked(self):
         self.close()

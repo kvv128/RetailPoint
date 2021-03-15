@@ -14,17 +14,19 @@ class UserDialog(QtWidgets.QDialog, ui_userDialog.Ui_userDialog):
         self.setupUi(self)
 
         self.edit_mode = False
-        self.post_id = ""
+        self.post_id = data_id
 
         if data_id is not None:
             self.data_id = data_id
             self.edit_mode = True
-            UA = DB_App.User.alias()
-            query = (User.select(User.user_fio, User.id_user_post, UA.post_name)
-                     .join(UA, JOIN.LEFT_OUTER, on=(User.id_user_post == UA.post_id)))
-            # print("print data...\n", query)
+            PA = DB_App.Post.alias()
+            query = (User.select(User.user_name, User.user_login, User.id_user_post, PA.post_name).where(User.user_id == data_id)
+                     .join(PA, JOIN.LEFT_OUTER, on=(User.id_user_post == PA.post_id)))
             for row in query:
-                print(row.user_fio, row.id_user_post, row.post.post_name)
+                self.txt_userName.setText(row.user_name)
+                self.pBtn_Post.setText(row.post.post_name)
+                self.txt_Login.setText(row.user_login)
+            self.txt_Password.setText("++++++++")
 
 
             db_user = DB_App.User.get(DB_App.User.user_id == data_id)
@@ -52,42 +54,40 @@ class UserDialog(QtWidgets.QDialog, ui_userDialog.Ui_userDialog):
             msg.exec_()
             return
 
-        # Проверяем есть ли в бд такой пользователь
-        db_data_name = DB_App.User.select().where(User.user_name == self.txt_userName.text())
-        if len(db_data_name) != 0:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Добавление записи")
-            msg.setText(f"Пользователь с ФИО '{self.txt_postName.text()}' уже существует!")
-            msg.exec_()
-            return
-
-        db_data_login = DB_App.User.select().where(User.user_login == self.txt_Login.text())
-        if len(db_data_login) != 0:
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Warning)
-            msg.setWindowTitle("Добавление записи")
-            msg.setText(f"Пользователь с логином '{self.txt_postName.text()}' уже существует!")
-            msg.exec_()
-            return
-
         if self.edit_mode:
-            pass
-            # query = DB_App.Post.update(post_name = self.txt_postName.text()).where(DB_App.Post.post_id == self.data_id)
-            # query.execute()
+            query = DB_App.User.update(user_name = self.txt_userName.text(),
+                                       user_login = self.txt_Login.text(),
+                                       id_user_post = self.post_id).where(DB_App.User.user_id == self.data_id)
+            query.execute()
+
+            if self.txt_Password.text() != "++++++++":
+                query = DB_App.User.update(user_psswd=self.txt_Password.text()).where(DB_App.User.user_id == self.data_id)
+                query.execute()
         else:
-            if len(self.post_id) == 0:
+            # Проверяем есть ли в бд такой пользователь
+            db_data_name = DB_App.User.select().where(User.user_name == self.txt_userName.text())
+            if len(db_data_name) != 0:
                 msg = QMessageBox()
                 msg.setIcon(QMessageBox.Warning)
                 msg.setWindowTitle("Добавление записи")
-                msg.setText(f"Необходимо выбрать должность!")
+                msg.setText(f"Пользователь с ФИО '{self.txt_postName.text()}' уже существует!")
                 msg.exec_()
                 return
-            else:
-                DB_App.User.create(user_login =self.txt_Login.text(),
-                                   user_psswd = self.txt_Password.text(),
-                                   user_name = self.txt_userName.text(),
-                                   id_user_post = self.post_id)
+
+            # Проверяем есть ли в бд такой логин
+            db_data_login = DB_App.User.select().where(User.user_login == self.txt_Login.text())
+            if len(db_data_login) != 0:
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Warning)
+                msg.setWindowTitle("Добавление записи")
+                msg.setText(f"Пользователь с логином '{self.txt_postName.text()}' уже существует!")
+                msg.exec_()
+                return
+
+            DB_App.User.create(user_login=self.txt_Login.text(),
+                               user_psswd=self.txt_Password.text(),
+                               user_name=self.txt_userName.text(),
+                               id_user_post=self.post_id)
 
         super().accept()
 

@@ -15,6 +15,8 @@ if __name__ == '__main__':
     DB_App.check_db_file()
     DB_App.save_start_param()
 
+    # DB_App.test_def()
+
     mainForm = MainForm()
     mainForm.show()
 

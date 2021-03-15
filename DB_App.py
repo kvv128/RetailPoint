@@ -120,9 +120,10 @@ def check_db_file():
 
 # check_sqlite_structure()
 
-# MA = Post.alias()
-# query = (User.select(User.user_fio, User.id_user_post, MA.post_name)
-#          .join(MA, JOIN.LEFT_OUTER, on=(User.id_user_post == MA.post_id)))
-# print("print data...\n", query)
-# for row in query:
-#     print(row.user_fio, row.id_user_post, row.post.post_name)
+# def test_def():
+#     MA = Post.alias()
+#     query = (User.select(User.user_name, User.id_user_post, MA.post_name)
+#              .join(MA, JOIN.LEFT_OUTER, on=(User.id_user_post == MA.post_id)))
+#     print("print data...\n", query)
+#     for row in query:
+#         print(row.user_fio, row.id_user_post, row.post.post_name)
