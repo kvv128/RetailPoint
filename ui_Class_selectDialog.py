@@ -33,14 +33,14 @@ class SelectDialog(QtWidgets.QDialog, ui_selectDialog.Ui_selectDialog):
         # filter_proxy_model.setFilterKeyColumn(2)  # third column
 
         # self.model = QStandardItemModel()
-        self.tbl_data.horizontalHeader().setSortIndicatorShown(True)
+        # self.tbl_data.horizontalHeader().setSortIndicatorShown(True)
         # self.tbl_data.horizontalHeader().setClickable(True)
 
         self.model = QtGui.QStandardItemModel()
-        self.rows = 0
-        self.cols = 2
+        # self.rows = 0
+        # self.cols = 2
 
-        self.tbl_data.setSortingEnabled(True)
+        # self.tbl_data.setSortingEnabled(True)
 
         # line edit for filtering
         self.txt_filter.textChanged.connect(self.txt_filter_textChange)
@@ -82,7 +82,7 @@ class SelectDialog(QtWidgets.QDialog, ui_selectDialog.Ui_selectDialog):
 
     def update_table_column(self):
 
-        headers = ["Имя", "Очки", "Дата регистрации", "ID"]
+        # headers = ["Имя", "Очки", "Дата регистрации", "ID"]
         # model = QtGui.QStandardItemModel()
         # model.setHorizontalHeaderLabels(headers)
 
