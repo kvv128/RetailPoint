@@ -9,8 +9,6 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
-
 class Ui_DictForm(object):
     def setupUi(self, DictForm):
         DictForm.setObjectName("DictForm")

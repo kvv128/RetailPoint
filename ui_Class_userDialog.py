@@ -16,6 +16,7 @@ class UserDialog(QtWidgets.QDialog, ui_userDialog.Ui_userDialog):
         self.edit_mode = False
         self.post_id = data_id
 
+
         if data_id is not None:
             self.data_id = data_id
             self.edit_mode = True

@@ -19,6 +19,7 @@ class DictionaryName(Enum):
     ProductType = "Вид товара"
 
 
+
 class SelectDialog(QtWidgets.QDialog, ui_selectDialog.Ui_selectDialog):
     def __init__(self, open_form, dict_name: DictionaryName, filter_name=""):
         super().__init__()
