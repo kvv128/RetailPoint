@@ -1,6 +1,8 @@
 from enum import Enum
 
-from PyQt5 import QtWidgets
+from PyQt5 import QtWidgets, QtGui, QtCore
+from PyQt5.QtCore import QSortFilterProxyModel
+from PyQt5.QtGui import QStandardItem
 from PyQt5.QtWidgets import QTableWidgetItem, QMenu, QMessageBox, QDialog
 from peewee import JOIN
 
@@ -45,7 +47,26 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
         # Обрабатываем события
         self.tbl_data.itemSelectionChanged.connect(self.set_current_row_param)
 
+
+        # Подготовка и вывод списка справочника
+        self.dict_list_model = QtGui.QStandardItemModel()
+        self.txt_dictFind.textChanged.connect(self.txt_dictFind_textChange)
         self.update_dict_list()
+
+    def txt_dictFind_textChange(self, text):
+        if len(text) == 0:
+            self.tbl_dictList.setModel(self.dict_list_model)
+            return
+
+        filter_model = QSortFilterProxyModel()
+        filter_model.setSourceModel(self.dict_list_model)
+        filter_model.setFilterKeyColumn(0)
+
+        regex = "^{}".format(text)
+        filter_model.setFilterRegExp(QtCore.QRegExp(regex, QtCore.Qt.CaseInsensitive))
+
+        self.tbl_dictList.setModel(filter_model)
+        pass
 
     def set_current_row_param(self):
         """Устанавливает current_row_index и current_record_id"""
@@ -57,8 +78,10 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
         self.tbl_data.clear()
         self.current_record_id = None
 
+        # cur_row = self.tbl_dictList.currentIndex().data()
+
         for curr_dict in DictionaryName:
-            if curr_dict.value == self.tbl_dictList.currentItem().text():
+            if curr_dict.value == self.tbl_dictList.currentIndex().data():
                 self.current_dict = curr_dict
                 break
 
@@ -176,17 +199,29 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
             i += 1
 
     def update_dict_list(self):
-        self.tbl_dictList.setColumnCount(1)
-        self.tbl_dictList.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
-
-        self.tbl_dictList.setRowCount(len(DictionaryName) - 1)
+        self.dict_list_model.setColumnCount(1)
 
         row_num = 0
         for dict_name in DictionaryName:
             if dict_name == DictionaryName.NoSelect:
                 continue
-            self.tbl_dictList.setItem(0, row_num, QTableWidgetItem(dict_name.value))
+            itm_dict = QStandardItem(dict_name.value)
+            self.dict_list_model.setItem(row_num, 0, itm_dict)
             row_num += 1
+
+        self.tbl_dictList.setModel(self.dict_list_model)
+
+        # self.tbl_dictList.setColumnCount(1)
+        # self.tbl_dictList.horizontalHeader().setSectionResizeMode(0, QtWidgets.QHeaderView.Stretch)
+        #
+        # self.tbl_dictList.setRowCount(len(DictionaryName) - 1)
+        #
+        # row_num = 0
+        # for dict_name in DictionaryName:
+        #     if dict_name == DictionaryName.NoSelect:
+        #         continue
+        #     self.tbl_dictList.setItem(0, row_num, QTableWidgetItem(dict_name.value))
+        #     row_num += 1
 
     def update_table_data(self):
         row_num = 0

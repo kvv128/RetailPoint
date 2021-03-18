@@ -9,8 +9,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>491</width>
-    <height>269</height>
+    <width>800</width>
+    <height>600</height>
    </rect>
   </property>
   <property name="font">
@@ -52,13 +52,16 @@
     </widget>
    </item>
    <item>
-    <widget class="QTableView" name="tbl_data">
+    <widget class="QTableWidget" name="tbl_data">
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
-     <property name="sortingEnabled">
+     <attribute name="horizontalHeaderVisible">
       <bool>false</bool>
-     </property>
+     </attribute>
+     <attribute name="horizontalHeaderCascadingSectionResizes">
+      <bool>true</bool>
+     </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>

@@ -9,6 +9,8 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
+
+
 class Ui_DictForm(object):
     def setupUi(self, DictForm):
         DictForm.setObjectName("DictForm")
@@ -68,16 +70,12 @@ class Ui_DictForm(object):
         self.txt_dictFind.setFont(font)
         self.txt_dictFind.setObjectName("txt_dictFind")
         self.verticalLayout_4.addWidget(self.txt_dictFind)
-        self.tbl_dictList = QtWidgets.QTableWidget(self.frame_12)
-        font = QtGui.QFont()
-        font.setPointSize(12)
-        self.tbl_dictList.setFont(font)
-        self.tbl_dictList.setSelectionMode(QtWidgets.QAbstractItemView.SingleSelection)
+        self.tbl_dictList = QtWidgets.QTableView(self.frame_12)
         self.tbl_dictList.setObjectName("tbl_dictList")
-        self.tbl_dictList.setColumnCount(0)
-        self.tbl_dictList.setRowCount(0)
         self.tbl_dictList.horizontalHeader().setVisible(False)
+        self.tbl_dictList.horizontalHeader().setStretchLastSection(True)
         self.tbl_dictList.verticalHeader().setVisible(False)
+        self.tbl_dictList.verticalHeader().setStretchLastSection(False)
         self.verticalLayout_4.addWidget(self.tbl_dictList)
         self.horizontalLayout_6.addWidget(self.frame_12)
         self.frame_13 = QtWidgets.QFrame(self.frame_11)
