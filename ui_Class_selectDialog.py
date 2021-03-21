@@ -35,6 +35,7 @@ class SelectDialog(QtWidgets.QDialog, ui_selectDialog.Ui_selectDialog):
         if len(text) == 0:
             self.tbl_data.setModel(self.model)
             return
+        self.update_table_data()
 
     def tbl_data_cellDoubleClicked(self):
         sel_model = self.tbl_data.selectionModel()
