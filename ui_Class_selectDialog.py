@@ -33,9 +33,11 @@ class SelectDialog(QtWidgets.QDialog, ui_selectDialog.Ui_selectDialog):
 
     def txt_filter_textChange(self, text):
         if len(text) == 0:
-            self.tbl_data.setModel(self.model)
+            self.update_table_data()
             return
-        self.update_table_data()
+        else:
+            filter_data = DB_App.Post.select().where(DB_App.Post.post_name.contains(text))
+            self.update_table_data(filter_data)
 
     def tbl_data_cellDoubleClicked(self):
         sel_model = self.tbl_data.selectionModel()
@@ -53,17 +55,17 @@ class SelectDialog(QtWidgets.QDialog, ui_selectDialog.Ui_selectDialog):
         self.tbl_data.setColumnHidden(0, True)
         self.update_table_data()
 
-    def update_table_data(self, filter_string = ""):
-        row_num = 0
-        selected_data = None
+    def update_table_data(self, filter_data = None):
+        if filter_data is not None and len(filter_data) == 0:
+            self.tbl_data.setRowCount(0)
 
         if self.current_dict == DictionaryName.Post:
-            if len(filter_string) == 0:
+            if filter_data is None:
                 selected_data = DB_App.Post.select()
             else:
-                selected_data = DB_App.Post.select().where(DB_App.Post.post_name == f"%{filter_string}%")
-
-            for db_data in DB_App.Post.select():
+                selected_data = filter_data
+            row_num = 0
+            for db_data in selected_data:
                 self.tbl_data.setRowCount(row_num+1)
                 self.tbl_data.setItem(row_num, 0, QTableWidgetItem(str(db_data.post_id)))
                 self.tbl_data.setItem(row_num, 1, QTableWidgetItem(str(db_data.post_name)))
