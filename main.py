@@ -19,6 +19,7 @@ if __name__ == '__main__':
 
     mainForm = MainForm()
     mainForm.show()
+    # DB_App.create_meas_table()
 
 app.exec()
 

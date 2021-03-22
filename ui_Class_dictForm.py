@@ -9,6 +9,7 @@ from peewee import JOIN
 import ui_dictForm
 from ui_Class_postDialog import PostDialog
 from ui_Class_userDialog import UserDialog
+from ui_Class_measUnitDialog import MeasUnitDialog
 
 import DB_App
 
@@ -21,7 +22,7 @@ class DictionaryName(Enum):
     Сounterparty = "Контрагенты"
     Product = "Товар"
     ProductGroup = "Группа товара"
-    ProductType = "Вид товара"
+    MeasUnit = "Единицы измерения"
     AppData = "Параметры приложения"
 
 
@@ -91,6 +92,12 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
         self.tbl_data.setColumnCount(0)
         self.tbl_data.setRowCount(0)
 
+        if self.current_dict == DictionaryName.MeasUnit:
+            self.tbl_data.setColumnCount(2)
+            self.tbl_data.setHorizontalHeaderLabels([DB_App.MeasUnit.measunit_id.verbose_name,
+                                                     DB_App.MeasUnit.measunit_name.verbose_name])
+            self.tbl_data.horizontalHeader().setSectionResizeMode(1, QtWidgets.QHeaderView.Stretch)
+
         if self.current_dict == DictionaryName.AppData:
             self.tbl_data.setColumnCount(3)
             self.tbl_data.setHorizontalHeaderLabels([DB_App.ParamData.param_id.verbose_name,
@@ -143,6 +150,13 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
         dialog_result = None
 
         if action == self.add_action:
+            if self.current_dict == DictionaryName.MeasUnit:
+                meas_unit_dialog = MeasUnitDialog(self)
+                dialog_result = meas_unit_dialog.exec_()
+
+                if dialog_result == QDialog.Accepted:
+                    self.update_table_data()
+
             if self.current_dict == DictionaryName.Post:
                 post_dialog = PostDialog(self)
                 dialog_result = post_dialog.exec_()
@@ -157,6 +171,10 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
                     self.update_table_data()
         #-------------------------------------------
         if action == self.edit_action:
+            if self.current_dict == DictionaryName.MeasUnit:
+                meas_unit_dialog = MeasUnitDialog(self, self.current_record_id)
+                dialog_result = meas_unit_dialog.exec_()
+
             if self.current_dict == DictionaryName.Post:
                 post_dialog = PostDialog(self, self.current_record_id)
                 dialog_result = post_dialog.exec_()
@@ -177,6 +195,8 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
             msg.setStandardButtons(QMessageBox.Ok | QMessageBox.Cancel)
             msg_answer = msg.exec_()
             if msg_answer == QMessageBox.Ok:
+                if self.current_dict == DictionaryName.MeasUnit:
+                    DB_App.MeasUnit.delete_by_id(self.current_record_id)
 
                 if self.current_dict == DictionaryName.Post:
                     DB_App.Post.delete_by_id(self.current_record_id)
@@ -226,6 +246,13 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
     def update_table_data(self):
         row_num = 0
 
+        if self.current_dict == DictionaryName.MeasUnit:
+            for db_data in DB_App.MeasUnit.select():
+                self.tbl_data.setRowCount(row_num+1)
+                self.tbl_data.setItem(row_num, 0, QTableWidgetItem(str(db_data.measunit_id)))
+                self.tbl_data.setItem(row_num, 1, QTableWidgetItem(str(db_data.measunit_name)))
+                row_num += 1
+
         if self.current_dict == DictionaryName.AppData:
             for db_data in DB_App.ParamData.select():
                 self.tbl_data.setRowCount(row_num+1)
@@ -260,6 +287,10 @@ class DictForm(QtWidgets.QMainWindow, ui_dictForm.Ui_DictForm):
                 row_num += 1
 
     def update_current_row(self):
+        if self.current_dict == DictionaryName.MeasUnit:
+            db_data = DB_App.MeasUnit.get(DB_App.MeasUnit.measunit_id == self.current_record_id)
+            self.tbl_data.setItem(self.current_row_index, 1, QTableWidgetItem(db_data.measunit_name))
+
         if self.current_dict == DictionaryName.Post:
             db_data = DB_App.Post.get(DB_App.Post.post_id == self.current_record_id)
             self.tbl_data.setItem(self.current_row_index, 1, QTableWidgetItem(db_data.post_name))

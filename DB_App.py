@@ -8,6 +8,13 @@ class BaseModel(Model):
     class Meta:
         database = db
 
+class MeasUnit(BaseModel):
+    measunit_id = AutoField(verbose_name="id")
+    measunit_name = CharField(verbose_name="Единицы измерения")
+
+    class Meta:
+        table_name = 'measur_unit'
+
 
 class User(BaseModel):
     user_id = AutoField(verbose_name="id")
@@ -38,8 +45,12 @@ class ParamData(BaseModel):
 
 
 def reset_app_db():
-    db.drop_tables([User, Post, ParamData])
-    db.create_tables([User, Post, ParamData])
+    db.drop_tables([User, Post, ParamData, MeasUnit])
+    db.create_tables([User, Post, ParamData, MeasUnit])
+
+def create_meas_table():
+    db.create_tables([MeasUnit])
+    db.drop_tables([MeasUnit])
 
 
 def reset_to_default_param():
